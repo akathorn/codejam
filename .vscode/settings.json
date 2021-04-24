@@ -1,0 +1,16 @@
+{
+    "python.testing.pytestArgs": [
+        "."
+    ],
+    "python.testing.unittestEnabled": false,
+    "python.testing.nosetestsEnabled": false,
+    "python.testing.pytestEnabled": true,
+    "cSpell.words": [
+        "freqs",
+        "numpy",
+        "unmalted",
+        "xmod",
+        "ymod"
+    ],
+    "python.pythonPath": "/usr/bin/python3.7"
+}
