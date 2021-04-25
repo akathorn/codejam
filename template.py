@@ -35,11 +35,8 @@ def writesolution(case: int, result: Union[Any, List[Any], None]) -> None:
         if isinstance(result[0], list):
             out_string = ""
             for row in result:
-                out_string += "\n"
-                for value in row:
-                    out_string += str(value)
-                    out_string += " "
-                out_string.strip()
+                out_values = map(str, row)
+                out_string += "\n" + " ".join(out_values)
         else:
             out_string = " ".join(str(value) for value in result)
     elif result is None:
@@ -47,20 +44,21 @@ def writesolution(case: int, result: Union[Any, List[Any], None]) -> None:
     else:
         out_string = str(result)
 
-    print(f"Case #%d: %s" % (case, out_string))
+    sys.stdout.write(f"Case #%d: %s\n" % (case, out_string))
 
 
 def solve_case(case: int):
-    ...
+    # Read data
+    # _ = readmany(int)  # TODO: delete
+
+    # Solve
     result = solve()
+
+    # Write solution
     writesolution(case, result)
 
 
 def main():
-    v = read2D(3, int)
-    print(v)
-    writesolution(1, v)
-    quit()
     T = readint()
     for case in range(1, T + 1):
         solve_case(case)
