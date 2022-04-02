@@ -4,51 +4,61 @@ import sys
 from typing import Any, Callable, List, NamedTuple, Tuple, TypeVar, Union
 
 
-Module = NamedTuple("Module", [("id", int), ("fun", int), ("pointers", list)])
+Module = NamedTuple(
+    "Module",
+    [("id", int), ("fun", int), ("parents", List[int]), ("children", List[int])],
+)
 Path = NamedTuple(
     "Path", [("modules", List[int]), ("max_fun", int), ("total_fun", int)]
 )
 
 
-def combine_paths(a: Path, b: Path) -> Path:
-    return Path(
-        modules=a.modules + b.modules,
-        max_fun=a.max_fun,
-        total_fun=a.total_fun + b.total_fun + b.max_fun,
-    )
+class Model:
+    def __init__(self, modules: List[Module]) -> None:
+        self.modules = modules
 
+    @functools.lru_cache()
+    def max_children(self, id: int) -> int:
+        mod = self.modules[id]
+        return max(mod.fun, *[self.max_children(c) for c in mod.children])
 
-def solve_rec(id: int, modules: List[Module]) -> List[Path]:
-    mod = modules[id]
+    def combine_paths(self, a: Path, b: Path) -> Path:
+        return Path(
+            modules=a.modules + b.modules,
+            max_fun=a.max_fun,
+            total_fun=a.total_fun + b.total_fun + b.max_fun,
+        )
 
-    # Base case (initiator)
-    if not mod.pointers:
-        return [Path([id], max_fun=mod.fun, total_fun=0)]
+    def solve_rec(self, id: int) -> List[Path]:
+        mod = self.modules[id]
 
-    pointer_paths: List[List[Path]] = [solve_rec(id, modules) for id in mod.pointers]
+        # Base case (initiator)
+        if not mod.parents:
+            return [Path([id], max_fun=mod.fun, total_fun=0)]
 
-    new_paths: List[Path] = []
-    for i in range(len(pointer_paths)):
-        first: List[Path] = [
-            Path(
-                modules=path.modules,
-                max_fun=max(mod.fun, path.max_fun),
-                total_fun=path.total_fun,
-            )
-            for path in pointer_paths[i]
-        ]
-        paths: List[List[Path]] = [first] + pointer_paths[:i] + pointer_paths[i + 1 :]
+        parent_paths: List[List[Path]] = [self.solve_rec(id) for id in mod.parents]
 
-        for product in itertools.product(*paths):
-            new_paths.append(functools.reduce(combine_paths, product))
+        new_paths: List[Path] = []
+        for i in range(len(parent_paths)):
+            first: List[Path] = [
+                Path(
+                    modules=path.modules,
+                    max_fun=max(mod.fun, path.max_fun),
+                    total_fun=path.total_fun,
+                )
+                for path in parent_paths[i]
+            ]
+            paths: List[List[Path]] = [first] + parent_paths[:i] + parent_paths[i + 1 :]
 
-    return new_paths
+            for product in itertools.product(*paths):
+                new_paths.append(functools.reduce(self.combine_paths, product))
 
+        return new_paths
 
-def solve(modules: List[Module]) -> int:
-    abyss = solve_rec(0, modules)
-    total_fun = max(path.total_fun + path.max_fun for path in abyss)
-    return total_fun
+    def solve(self) -> int:
+        abyss = self.solve_rec(0)
+        total_fun = max(path.total_fun + path.max_fun for path in abyss)
+        return total_fun
 
 
 def solve_case(case: int):
@@ -59,23 +69,24 @@ def solve_case(case: int):
     model = create_model(funs, pointers)
 
     # Solve
-    result = solve(model)
+    result = model.solve()
 
     # Write solution
     writesolution(case, result)
 
 
-def create_model(funs, pointers) -> List[Module]:
-    modules: List[Module] = [Module(id=0, fun=0, pointers=[])]
+def create_model(funs, pointers) -> Model:
+    modules: List[Module] = [Module(id=0, fun=0, parents=[], children=[])]
 
     for i, f in enumerate(funs, 1):
-        mod = Module(i, f, [])
+        mod = Module(i, f, [], [])
         modules.append(mod)
 
     for mod, p in enumerate(pointers, 1):
-        modules[p].pointers.append(mod)
+        modules[p].parents.append(mod)
+        modules[mod].children.append(p)
 
-    return modules
+    return Model(modules)
 
 
 ############################ Template code ###############################

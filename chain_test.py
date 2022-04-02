@@ -1,5 +1,5 @@
 import chain
-from chain import Module
+from chain import Module, Model
 from pytest_mock import mocker, MockerFixture  # type: ignore
 
 # fmt: off
@@ -37,13 +37,15 @@ def test_in_out(mocker: MockerFixture):
 
 
 def test2():
-    model = [
-        Module(id=0, fun=0, pointers=[1, 5]),
-        Module(id=1, fun=3, pointers=[2, 3, 4]),
-        Module(id=2, fun=2, pointers=[]),
-        Module(id=3, fun=1, pointers=[]),
-        Module(id=4, fun=4, pointers=[]),
-        Module(id=5, fun=5, pointers=[]),
-    ]
+    model = Model(
+        [
+            Module(id=0, fun=0, parents=[1, 5], children=[]),
+            Module(id=1, fun=3, parents=[2, 3, 4], children=[0]),
+            Module(id=2, fun=2, parents=[], children=[1]),
+            Module(id=3, fun=1, parents=[], children=[1]),
+            Module(id=4, fun=4, parents=[], children=[1]),
+            Module(id=5, fun=5, parents=[], children=[0]),
+        ]
+    )
 
-    assert chain.solve(model) == 14
+    assert model.solve() == 14
