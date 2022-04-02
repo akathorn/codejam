@@ -1,3 +1,4 @@
+import random
 import chain
 from chain import Module, Model
 from pytest_mock import mocker, MockerFixture  # type: ignore
@@ -36,16 +37,103 @@ def test_in_out(mocker: MockerFixture):
     assert len(mock_write.mock_calls) == len(out_lines)
 
 
+def test1():
+    model = Model(
+        [
+            Module(id=0, fun=0, parents=[1]),
+            Module(id=1, fun=60, parents=[2, 3]),
+            Module(id=2, fun=20, parents=[4]),
+            Module(id=3, fun=40, parents=[]),
+            Module(id=4, fun=50, parents=[]),
+        ]
+    )
+
+    assert model.solve() == 110
+
+
 def test2():
     model = Model(
         [
-            Module(id=0, fun=0, parents=[1, 5], children=[]),
-            Module(id=1, fun=3, parents=[2, 3, 4], children=[0]),
-            Module(id=2, fun=2, parents=[], children=[1]),
-            Module(id=3, fun=1, parents=[], children=[1]),
-            Module(id=4, fun=4, parents=[], children=[1]),
-            Module(id=5, fun=5, parents=[], children=[0]),
+            Module(id=0, fun=0, parents=[1, 5]),
+            Module(id=1, fun=3, parents=[2, 3, 4]),
+            Module(id=2, fun=2, parents=[]),
+            Module(id=3, fun=1, parents=[]),
+            Module(id=4, fun=4, parents=[]),
+            Module(id=5, fun=5, parents=[]),
         ]
     )
 
     assert model.solve() == 14
+
+
+def test_random():
+    N = 1000
+    T = 100
+
+    for _ in range(T):
+        funs = [random.randint(1, int(1e9) + 1) for _ in range(N)]
+        pointers = [random.randint(0, m - 1) for m in range(1, N + 1)]
+
+        model = chain.create_model(funs, pointers)
+        assert model.solve()
+
+
+def test_random_big():
+    N = 10000
+    T = 10
+
+    for _ in range(T):
+        funs = [random.randint(1, int(1e9) + 1) for _ in range(N)]
+        pointers = [random.randint(0, m - 1) for m in range(1, N + 1)]
+
+        model = chain.create_model(funs, pointers)
+        assert model.solve()
+
+
+def test_disjoint():
+    funs = [1, 2, 3, 4, 5, 6]
+    pointers = [0, 1, 1, 0, 4, 4]
+
+    model = chain.create_model(funs, pointers)
+    assert model.solve()
+
+
+def test_chained():
+    funs = [1, 2, 3, 4, 5, 6]
+    pointers = [0, 1, 2, 3, 4, 5]
+
+    model = chain.create_model(funs, pointers)
+    assert model.solve()
+
+
+def test_chained_long():
+    N = 1000
+    funs = [10] * N
+    pointers = list(range(N))
+
+    model = chain.create_model(funs, pointers)
+    assert model.solve() == 10
+
+
+def test_blah():
+    funs = [0, 2, 3, 4, 5, 6]
+    pointers = [0, 0, 2, 2, 2, 2]
+
+    model = chain.create_model(funs, pointers)
+    assert model.solve()
+
+
+def test_one():
+    funs = [10]
+    pointers = [0]
+
+    model = chain.create_model(funs, pointers)
+    assert model.solve() == 10
+
+
+def test_no_fun():
+    funs = [1, 1, 1, 1, 1, 1]
+    pointers = [0, 0, 2, 2, 2, 2]
+
+    model = chain.create_model(funs, pointers)
+    assert model.solve()

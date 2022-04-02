@@ -6,58 +6,57 @@ from typing import Any, Callable, List, NamedTuple, Tuple, TypeVar, Union
 
 Module = NamedTuple(
     "Module",
-    [("id", int), ("fun", int), ("parents", List[int]), ("children", List[int])],
+    [("id", int), ("fun", int), ("parents", List[int])],
 )
-Path = NamedTuple(
-    "Path", [("modules", List[int]), ("max_fun", int), ("total_fun", int)]
-)
+Path = NamedTuple("Path", [("max_fun", int), ("total_fun", int)])
 
 
 class Model:
     def __init__(self, modules: List[Module]) -> None:
         self.modules = modules
+        self.solutions = {}
 
-    @functools.lru_cache()
-    def max_children(self, id: int) -> int:
-        mod = self.modules[id]
-        return max(mod.fun, *[self.max_children(c) for c in mod.children])
+    def close_path(self, path: Path) -> int:
+        return path.max_fun + path.total_fun
 
-    def combine_paths(self, a: Path, b: Path) -> Path:
-        return Path(
-            modules=a.modules + b.modules,
-            max_fun=a.max_fun,
-            total_fun=a.total_fun + b.total_fun + b.max_fun,
-        )
-
-    def solve_rec(self, id: int) -> List[Path]:
+    def resolve(self, id: int) -> None:
         mod = self.modules[id]
 
         # Base case (initiator)
         if not mod.parents:
-            return [Path([id], max_fun=mod.fun, total_fun=0)]
+            self.solutions[id] = [Path(max_fun=mod.fun, total_fun=0)]
+            return
 
-        parent_paths: List[List[Path]] = [self.solve_rec(id) for id in mod.parents]
+        parent_paths: List[List[Path]] = [
+            self.solutions[parent_id] for parent_id in mod.parents
+        ]
 
         new_paths: List[Path] = []
         for i in range(len(parent_paths)):
-            first: List[Path] = [
-                Path(
-                    modules=path.modules,
-                    max_fun=max(mod.fun, path.max_fun),
-                    total_fun=path.total_fun,
-                )
-                for path in parent_paths[i]
-            ]
-            paths: List[List[Path]] = [first] + parent_paths[:i] + parent_paths[i + 1 :]
+            first = parent_paths[i]
+            rest = parent_paths[:i] + parent_paths[i + 1 :]
+            rest_total_fun = sum(
+                max(self.close_path(p) for p in paths) for paths in rest
+            )
+            new_paths.extend(
+                [
+                    Path(
+                        max_fun=max(mod.fun, path.max_fun),
+                        total_fun=path.total_fun + rest_total_fun,
+                    )
+                    for path in first
+                ]
+            )
+        self.solutions[id] = new_paths
 
-            for product in itertools.product(*paths):
-                new_paths.append(functools.reduce(self.combine_paths, product))
-
-        return new_paths
+    def solve_all(self):
+        for id in reversed(range(len(self.modules))):
+            self.resolve(id)
 
     def solve(self) -> int:
-        abyss = self.solve_rec(0)
-        total_fun = max(path.total_fun + path.max_fun for path in abyss)
+        self.solve_all()
+        abyss = self.solutions[0]
+        total_fun = max(self.close_path(path) for path in abyss)
         return total_fun
 
 
@@ -76,15 +75,14 @@ def solve_case(case: int):
 
 
 def create_model(funs, pointers) -> Model:
-    modules: List[Module] = [Module(id=0, fun=0, parents=[], children=[])]
+    modules: List[Module] = [Module(id=0, fun=0, parents=[])]
 
     for i, f in enumerate(funs, 1):
-        mod = Module(i, f, [], [])
+        mod = Module(i, f, [])
         modules.append(mod)
 
     for mod, p in enumerate(pointers, 1):
         modules[p].parents.append(mod)
-        modules[mod].children.append(p)
 
     return Model(modules)
 
