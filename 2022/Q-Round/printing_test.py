@@ -37,7 +37,7 @@ def test_in_out(mocker: MockerFixture):
 
 
 def test_random():
-    for _ in range(10000):
+    for _ in range(1000000):
         printers = [[random.randint(0, int(1e6)) for _ in range(4)] for _ in range(3)]
         result = printing.solve(printers)
         if result:

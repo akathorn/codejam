@@ -17,6 +17,48 @@ def solve(printers) -> Optional[List[int]]:
     return result
 
 
+def solve2(printers):
+    printer_1 = printers[0]
+    printer_2 = printers[1]
+    printer_3 = printers[2]
+
+    min_cyan = min(printer_1[0], printer_2[0], printer_3[0])
+    min_magenta = min(printer_1[1], printer_2[1], printer_3[1])
+    min_yellow = min(printer_1[2], printer_2[2], printer_3[2])
+    min_black = min(printer_1[3], printer_2[3], printer_3[3])
+
+    total = min_cyan + min_magenta + min_yellow + min_black
+
+    if total == 1000000:
+        return [min_cyan, min_magenta, min_yellow, min_black]
+
+    elif total > 1000000:
+        difference = total - 1000000
+
+        if min_cyan >= difference:
+            min_cyan -= difference
+            return [min_cyan, min_magenta, min_yellow, min_black]
+        else:
+            difference -= min_cyan
+            min_cyan = 0
+        if min_magenta >= difference:
+            min_magenta -= difference
+            return [min_cyan, min_magenta, min_yellow, min_black]
+        else:
+            difference -= min_magenta
+            min_magenta = 0
+        if min_yellow >= difference:
+            min_yellow -= difference
+            return [min_cyan, min_magenta, min_yellow, min_black]
+        else:
+            difference -= min_yellow
+            min_yellow = 0
+        min_black -= difference
+        return [min_cyan, min_magenta, min_yellow, min_black]
+
+    return None
+
+
 def solve_case(case: int):
     # Read data
     printers = readlines(3, int)
