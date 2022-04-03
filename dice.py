@@ -2,17 +2,21 @@ import sys
 from typing import Any, Callable, List, TypeVar, Union
 
 
-def solve() -> int:
-    ...
-    return 0
+def solve(dice: List[int]) -> int:
+    straight = 0
+    remaining = list(sorted(dice, reverse=True))
+    while remaining:
+        if remaining.pop() > straight:
+            straight += 1
+    return straight
 
 
 def solve_case(case: int):
     # Read data
-    ...
+    read(str)
 
     # Solve
-    result = solve()
+    result = solve(readmany(int))
 
     # Write solution
     writesolution(case, result)

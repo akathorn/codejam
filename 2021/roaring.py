@@ -2,17 +2,30 @@ import sys
 from typing import Any, Callable, List, TypeVar, Union
 
 
-def solve() -> int:
-    ...
-    return 0
+def solve(year: str) -> str:
+    if len(year) == 1:
+        return str(int(year) + 1)
+    best = ""
+    l = 0
+    while l < len(year) + 2:
+        for i in range(len(year) - 1):  # TODO: we can stop much earlier
+            next = int(year[:i]) + l
+            result = str(next)
+            while len(result) < len(year):
+                next += 1
+                result += str(next)
+            if not best or int(result) < int(best) and int(result) > int(year):
+                best = result
+        l += 1
+    return best
 
 
 def solve_case(case: int):
     # Read data
-    ...
+    year = read()
 
     # Solve
-    result = solve()
+    result = solve(year)
 
     # Write solution
     writesolution(case, result)

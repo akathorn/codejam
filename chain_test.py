@@ -90,6 +90,18 @@ def test_random_big():
         assert model.solve()
 
 
+def test_random_very_big():
+    N = 100000
+    T = 10
+
+    for _ in range(T):
+        funs = [random.randint(1, int(1e9) + 1) for _ in range(N)]
+        pointers = [random.randint(0, m - 1) for m in range(1, N + 1)]
+
+        model = chain.create_model(funs, pointers)
+        assert model.solve()
+
+
 def test_disjoint():
     funs = [1, 2, 3, 4, 5, 6]
     pointers = [0, 1, 1, 0, 4, 4]

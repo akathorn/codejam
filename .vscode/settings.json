@@ -6,7 +6,11 @@
     "python.testing.nosetestsEnabled": false,
     "python.testing.pytestEnabled": true,
     "cSpell.words": [
+        "deque",
         "freqs",
+        "nriders",
+        "nsnappers",
+        "nsnaps",
         "numpy",
         "unmalted",
         "xmod",

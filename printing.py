@@ -1,18 +1,28 @@
 import sys
-from typing import Any, Callable, List, TypeVar, Union
+from typing import Any, Callable, List, TypeVar, Union, Optional
 
 
-def solve() -> int:
-    ...
-    return 0
+def solve(printers) -> Optional[List[int]]:
+    ink = [min(i) for i in zip(*printers)]
+    if sum(ink) < 1e6:
+        return None
+
+    remaining = 1e6
+    result = []
+    for i in ink:
+        add = min(i, remaining)
+        result.append(int(add))
+        remaining -= add
+
+    return result
 
 
 def solve_case(case: int):
     # Read data
-    ...
+    printers = readlines(3, int)
 
     # Solve
-    result = solve()
+    result = solve(printers)
 
     # Write solution
     writesolution(case, result)

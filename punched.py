@@ -2,17 +2,24 @@ import sys
 from typing import Any, Callable, List, TypeVar, Union
 
 
-def solve() -> int:
-    ...
-    return 0
+def solve(R, C) -> List[List[str]]:
+    odd = ["+-" * C + "+"]
+    even = ["|." * C + "|"]
+    result = [[".." + "+-" * (C - 1) + "+"], [".." + "|." * (C - 1) + "|"]]
+    for i in range(R - 1):
+        result.append(odd)
+        result.append(even)
+    result.append(odd)
+
+    return result
 
 
 def solve_case(case: int):
     # Read data
-    ...
+    R, C = readmany(int)
 
     # Solve
-    result = solve()
+    result = solve(R, C)
 
     # Write solution
     writesolution(case, result)

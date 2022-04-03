@@ -2,25 +2,12 @@ import sys
 from typing import Any, Callable, List, TypeVar, Union
 
 
-def solve() -> int:
+T = TypeVar("T")
+
+
+def solve(events: List[int]) -> int:
     ...
     return 0
-
-
-def solve_case(case: int):
-    # Read data
-    ...
-
-    # Solve
-    result = solve()
-
-    # Write solution
-    writesolution(case, result)
-
-
-############################ Template code ###############################
-
-T = TypeVar("T")
 
 
 def read(typ: Callable[[str], T] = str) -> T:
@@ -50,6 +37,17 @@ def writesolution(case: int, result: Union[Any, List[Any], None]) -> None:
         out_string = str(result)
 
     sys.stdout.write(f"Case #%d: %s\n" % (case, out_string))
+
+
+def solve_case(case: int):
+    # Read data
+    _, *events = readmany(int)  # TODO: delete
+
+    # Solve
+    result = solve(events)
+
+    # Write solution
+    writesolution(case, result)
 
 
 def main():

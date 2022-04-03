@@ -1,17 +1,34 @@
-import template
+import punched
 from pytest_mock import mocker, MockerFixture  # type: ignore
 
 # fmt: off
 in_str = ("""
 3
-3 2
-1 2
-4 2
+3 4
+2 2
+2 3
 """)
 out_str = ("""
-Case #1: 0
-Case #2: 0
-Case #3: 0
+Case #1:
+..+-+-+-+
+..|.|.|.|
++-+-+-+-+
+|.|.|.|.|
++-+-+-+-+
+|.|.|.|.|
++-+-+-+-+
+Case #2:
+..+-+
+..|.|
++-+-+
+|.|.|
++-+-+
+Case #3:
+..+-+-+
+..|.|.|
++-+-+-+
+|.|.|.|
++-+-+-+
 """)
 # fmt: on
 
@@ -21,7 +38,7 @@ def test_in_out(mocker: MockerFixture):
     mock_write = mocker.patch("sys.stdout.write")
     mock_read.side_effect = in_str.splitlines()[1:]
 
-    template.main()
+    punched.main()
 
     out_lines = out_str.splitlines()[1:]
     for call, out in zip(mock_write.mock_calls, out_lines):

@@ -1,26 +1,39 @@
 import sys
+from collections import deque
 from typing import Any, Callable, List, TypeVar, Union
 
 
-def solve() -> int:
-    ...
-    return 0
+T = TypeVar("T")
+
+
+def solve(rides: int, capacity: int, groups: List[int]) -> int:
+    queue = deque(groups)
+
+    moneys = 0
+    riders: List[int] = []
+    for _ in range(rides):
+        nriders = 0
+        riders.clear()
+        while len(queue) > 0 and (nriders + queue[0] <= capacity):
+            group = queue.popleft()
+            riders.append(group)
+            nriders += group
+        moneys += sum(riders)
+        queue.extend(riders)
+
+    return moneys
 
 
 def solve_case(case: int):
     # Read data
-    ...
+    R, k, _ = readmany(int)
+    groups = readmany(int)
 
     # Solve
-    result = solve()
+    result = solve(R, k, groups)
 
     # Write solution
     writesolution(case, result)
-
-
-############################ Template code ###############################
-
-T = TypeVar("T")
 
 
 def read(typ: Callable[[str], T] = str) -> T:

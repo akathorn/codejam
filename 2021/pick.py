@@ -1,18 +1,31 @@
 import sys
+import itertools
 from typing import Any, Callable, List, TypeVar, Union
 
 
-def solve() -> int:
-    ...
-    return 0
+def solve(K: int, tickets: List[int]) -> float:
+    best = 0.0
+    for a, b in itertools.combinations(range(1, K + 1), 2):
+        prob = sum(win(a, b, c, tickets) for c in range(1, K + 1)) / K
+        best = max(best, prob)
+
+    return best
+
+
+def win(a: int, b: int, c: int, tickets: List[int]) -> bool:
+    distances = [abs(c - t) for t in tickets]
+    da = abs(c - a)
+    db = abs(c - b)
+    return all(da < d for d in distances) or all(db < d for d in distances)
 
 
 def solve_case(case: int):
     # Read data
-    ...
+    _, K = readmany(int)
+    tickets = readmany(int)
 
     # Solve
-    result = solve()
+    result = solve(K, tickets)
 
     # Write solution
     writesolution(case, result)
