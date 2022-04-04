@@ -1,4 +1,5 @@
 import sys
+import random
 from typing import Any, Callable, List, TypeVar, Union
 
 
@@ -6,7 +7,7 @@ class WrongAnswer(Exception):
     pass
 
 
-err = lambda s: sys.stderr.write(str(s) + "\n")
+err = lambda s: (sys.stderr.write(str(s) + "\n"), sys.stderr.flush())
 
 
 class Interactive:
@@ -16,19 +17,28 @@ class Interactive:
 
     def update_room(self):
         self.room, self.passages = readmany(int)
-        # err(f"room: {self.room}, passages: {self.passages}")
 
     def walk(self):
-        Output("W\n")
+        Output("W")
+        self.update_room()
 
     def teleport(self, room: int):
-        Output(f"T {room}\n")
+        Output(f"T {room}")
+        self.update_room()
 
     def guess(self, E: int):
-        Output(f"E {E}\n")
+        Output(f"E {E}")
 
     def solve(self):
-        self.guess(0)
+        passages = self.passages
+        rooms = list(range(1, self.N + 1))
+        random.shuffle(rooms)
+        for room in rooms[: self.K]:
+            self.teleport(room)
+            passages += self.passages
+
+        average_passages = passages / self.K
+        self.guess(int((average_passages * self.N) / 2))
 
 
 def solve_case(case: int):
@@ -71,7 +81,10 @@ def main():
         for case in range(1, T + 1):
             solve_case(case)
     except WrongAnswer:
+        pass
+    finally:
         sys.stdout.close()
+        sys.stderr.close()
 
 
 if __name__ == "__main__":
