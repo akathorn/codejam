@@ -63,6 +63,11 @@ def Output(s: str):
     sys.stdout.flush()
 
 
+def Finallize():
+    sys.stdout.close()
+    sys.stderr.close()
+
+
 def read(typ: Callable[[str], T] = str) -> T:
     return typ(Input())
 
@@ -83,8 +88,7 @@ def main():
     except WrongAnswer:
         pass
     finally:
-        sys.stdout.close()
-        sys.stderr.close()
+        Finallize()
 
 
 if __name__ == "__main__":
