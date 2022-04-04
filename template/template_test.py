@@ -17,8 +17,9 @@ Case #3: 0
 
 
 def test_in_out(mocker: MockerFixture):
-    mock_read = mocker.patch("sys.stdin.readline")
-    mock_write = mocker.patch("sys.stdout.write")
+    mock_read = mocker.patch("template.Input")
+    mock_write = mocker.patch("template.Output")
+    _ = mocker.patch("template.Finalize")
     mock_read.side_effect = in_str.splitlines()[1:]
 
     template.main()

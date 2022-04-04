@@ -23,12 +23,26 @@ def solve_case(case: int):
 T = TypeVar("T")
 
 
+def Input() -> str:
+    return sys.stdin.readline().strip()
+
+
+def Output(s: str):
+    sys.stdout.write(s + "\n")
+    sys.stdout.flush()
+
+
+def Finalize():
+    sys.stdout.close()
+    sys.stderr.close()
+
+
 def read(typ: Callable[[str], T] = str) -> T:
-    return typ(sys.stdin.readline().strip())
+    return typ(Input())
 
 
 def readmany(typ: Callable[[str], T] = str) -> List[T]:
-    return [typ(s) for s in sys.stdin.readline().split()]
+    return [typ(s) for s in Input().split()]
 
 
 def readlines(rows: int, typ: Callable[[str], T] = str) -> List[List[T]]:
@@ -49,13 +63,22 @@ def writesolution(case: int, result: Union[Any, List[Any], None]) -> None:
     else:
         out_string = str(result)
 
-    sys.stdout.write(f"Case #%d: %s\n" % (case, out_string))
+    Output(f"Case #{case}: {out_string}")
+
+
+class EndInteractive(Exception):
+    pass
 
 
 def main():
-    T = read(int)
-    for case in range(1, T + 1):
-        solve_case(case)
+    try:
+        T = read(int)
+        for case in range(1, T + 1):
+            solve_case(case)
+    except EndInteractive:
+        pass
+    finally:
+        Finalize()
 
 
 if __name__ == "__main__":

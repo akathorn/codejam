@@ -27,7 +27,7 @@ def test_threads(mocker: MockerFixture):
 
     sol_read = mocker.patch("passages.Input", wraps=Input(judge_sol_queue))
     sol_write = mocker.patch("passages.Output", wraps=Output(sol_judge_queue))
-    sol_read = mocker.patch("passages.Finallize")
+    sol_read = mocker.patch("passages.Finalize")
     judge_read = mocker.patch("passages_judge.Input", wraps=Input(sol_judge_queue))
     judge_write = mocker.patch("passages_judge.Output", wraps=Output(judge_sol_queue))
 

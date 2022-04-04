@@ -63,7 +63,7 @@ def Output(s: str):
     sys.stdout.flush()
 
 
-def Finallize():
+def Finalize():
     sys.stdout.close()
     sys.stderr.close()
 
@@ -88,7 +88,7 @@ def main():
     except WrongAnswer:
         pass
     finally:
-        Finallize()
+        Finalize()
 
 
 if __name__ == "__main__":
