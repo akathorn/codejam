@@ -7,20 +7,42 @@ import os
 
 def init(name: str):
     print(f"Initializing template for {name}")
+    if os.path.exists(f"./{name}.py"):
+        raise FileExistsError("The module has been initialized already!")
 
-    # Create sample file. Fails if the file exists
-    with open(f"./{name}.sample", "x"):
-        pass
-
-    # Template code
+    # Copy template code
     shutil.copy("./template/template.py", f"./{name}.py")
 
-    # Test code
+    # Create sample file
+    print("Paste sample input")
+    sample_input = []
+    line = input()
+    while line:
+        sample_input.append(line + "\n")
+        line = input()
+
+    with open(f"./{name}.sample", "w") as sample:
+        sample.writelines(sample_input)
+
+    # Create test file
+    print("Paste sample output")
+    sample_output = []
+    line = input()
+    while line:
+        sample_output.append(line + "\n")
+        line = input()
+
     with open(f"./template/template_test.py", "r") as template:
         with open(f"./{name}_test.py", "w") as dest:
-            dest.writelines(
-                line.replace("template", name) for line in template.readlines()
-            )
+            for line in template.readlines():
+                if line.find("[INPUT]") >= 0:
+                    dest.writelines(sample_input)
+                elif line.find("[OUTPUT]") >= 0:
+                    dest.writelines(sample_output)
+                else:
+                    dest.write(line.replace("template", name))
+
+    print(f"Template for {name} initialized")
 
 
 def run(name: str):

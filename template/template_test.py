@@ -2,16 +2,22 @@ import template
 from pytest_mock import mocker, MockerFixture  # type: ignore
 
 # fmt: off
+# in_str = ("""
+# 3
+# 3 2
+# 1 2
+# 4 2
+# """)
+# out_str = ("""
+# Case #1: 0
+# Case #2: 0
+# Case #3: 0
+# """)
 in_str = ("""
-3
-3 2
-1 2
-4 2
+[INPUT]
 """)
 out_str = ("""
-Case #1: 0
-Case #2: 0
-Case #3: 0
+[OUTPUT]
 """)
 # fmt: on
 
