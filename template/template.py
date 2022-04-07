@@ -49,10 +49,12 @@ def readlines(rows: int, typ: Callable[[str], T] = str) -> List[List[T]]:
     return [readmany(typ) for _ in range(rows)]
 
 
-def writesolution(case: int, result: Union[Any, List[Any], None]) -> None:
+def writesolution(
+    case: int, result: Union[Any, List[Any], None], print_length=False
+) -> None:
     if isinstance(result, list):
         if isinstance(result[0], list):
-            out_string = ""
+            out_string = str(len(result)) if print_length else ""
             for row in result:
                 out_values = map(str, row)
                 out_string += "\n" + " ".join(out_values)
