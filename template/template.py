@@ -77,8 +77,7 @@ def main():
             solve_case(case)
     except EndInteractive:
         pass
-    finally:
-        Finalize()
+    Finalize()
 
 
 if __name__ == "__main__":
