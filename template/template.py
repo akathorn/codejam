@@ -2,7 +2,7 @@ import sys
 from typing import Any, Callable, List, TypeVar, Union
 
 
-def solve() -> int:
+def solve(_) -> int:
     ...
     return 0
 
@@ -12,15 +12,26 @@ def solve_case(case: int):
     ...
 
     # Solve
-    result = solve()
+    try:
+        result = solve(...)
+    except Impossible:
+        result = None
 
     # Write solution
-    writesolution(case, result)
+    Output(writesolution(case, result))
 
 
 ############################ Template code ###############################
 
 T = TypeVar("T")
+
+
+class EndInteractive(Exception):
+    pass
+
+
+class Impossible(Exception):
+    pass
 
 
 def Input() -> str:
@@ -51,7 +62,23 @@ def readlines(rows: int, typ: Callable[[str], T] = str) -> List[List[T]]:
 
 def writesolution(
     case: int, result: Union[Any, List[Any], None], print_length=False
-) -> None:
+) -> str:
+    """Prints the solution for one case.
+
+    The result will be printed according to the type:
+    - None:
+        Case #{case}: IMPOSSIBLE
+    - Single value:
+        Case #{case}: {str(result)}
+    - List:
+        Case #{case}: {str(result[0]), str(result[1]), str(result[2]), ...}
+    - List of lists:
+        Case #{case}: {#rows if print_length == True}
+        {str(result[0][0]), str(result[0][1]), ...}
+        {str(result[1][0]), str(result[1][1]), ...}
+        {str(result[2][0]), str(result[2][1]), ...}
+        ...
+    """
     if isinstance(result, list):
         if isinstance(result[0], list):
             out_string = str(len(result)) if print_length else ""
@@ -65,11 +92,7 @@ def writesolution(
     else:
         out_string = str(result)
 
-    Output(f"Case #{case}: {out_string}")
-
-
-class EndInteractive(Exception):
-    pass
+    return f"Case #{case}: {out_string}"
 
 
 def main():
