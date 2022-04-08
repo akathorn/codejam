@@ -51,9 +51,6 @@ def solve(rows_lines: List[str]) -> List[List[int]]:
                 streak = []
         if len(streak) >= current_length:
             candidates.append(streak)
-        
-        for candidate in candidates:
-            
 
         current_length -= 1
 
