@@ -3,7 +3,7 @@ import dance
 import dance_generate_samples
 import os
 
-N, C = 1000, 1000
+N, C = 5000, 5000
 path: str = f"dance_{N}x{C}.sample"
 force = False
 

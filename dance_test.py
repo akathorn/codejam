@@ -53,6 +53,7 @@ def test_in_out(mocker: MockerFixture):
 
 
 def test_random():
+    random.seed(10)
     N, C = 3, 4
     case = [[random.randint(1, 1000) for _ in range(C)] for _ in range(N)]
     assert dance.solve(case)

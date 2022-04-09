@@ -1,5 +1,6 @@
+from collections import defaultdict
 import sys
-from typing import Any, Callable, Dict, List, TypeVar, Union, Tuple
+from typing import Any, Callable, Dict, Generator, List, Optional, TypeVar, Union, Tuple
 
 Position = Tuple[int, int]
 
@@ -10,33 +11,36 @@ class Dancers:
         self._skills: Dict[Position, int] = {
             (i, j): skills[i][j] for j in range(self.C) for i in range(self.R)
         }
-        self._neighbours: Dict[Position, Dict[Position, Position]] = {}
-        for i in range(self.R):
-            for j in range(self.C):
-                self._neighbours[(i, j)] = {}
-                for d in -1, 1:
-                    if 0 <= i + d < self.R:
-                        self._neighbours[(i, j)][(d, 0)] = (i + d, j)
-                    if 0 <= j + d < self.C:
-                        self._neighbours[(i, j)][(0, d)] = (i, j + d)
+        self._neighbours: Dict[
+            Position, Dict[Position, Optional[Position]]
+        ] = defaultdict(dict)
 
         self.interest = sum(self._skills.values())
 
-    # def neighbours(self, dancer: Position) -> Dict[Position, Position]:
-    #     i, j = dancer
-    #     for d in -1, 1:
-    #         if 0 <= i + d < R:
-    #             self._neighbours[(i, j)][(d, 0)] = (i + d, j)
-    #         if 0 <= j + d < C:
-    #             self._neighbours[(i, j)][(0, d)] = (i, j + d)
+    def neighbours(
+        self, dancer: Position
+    ) -> Generator[Tuple[Position, Position], Position, None]:
+        i, j = dancer
+        for d in -1, 1:
+            if (d, 0) in self._neighbours[dancer] and self._neighbours[dancer][(d, 0)]:
+                yield (d, 0), self._neighbours[dancer][(d, 0)]  # type: ignore
+            elif 0 <= i + d < self.R and (i + d, j) in self._skills:
+                self._neighbours[dancer][(d, 0)] = (i + d, j)
+                yield (d, 0), (i + d, j)
+
+            if (0, d) in self._neighbours[dancer] and self._neighbours[dancer][(0, d)]:
+                yield (0, d), self._neighbours[dancer][(0, d)]  # type: ignore
+            elif 0 <= j + d < self.C and (i, j + d) in self._skills:
+                self._neighbours[dancer][(0, d)] = (i, j + d)
+                yield (0, d), (i, j + d)
 
     def next_round(self) -> bool:
         eliminate: List[Position] = []
         for dancer in self._skills.keys():
-            neighbours = self._neighbours[dancer].values()
+            neighbours = list(self.neighbours(dancer))
             if not neighbours:
                 continue
-            average = sum(self._skills[neighbour] for neighbour in neighbours) / len(
+            average = sum(self._skills[neighbour[1]] for neighbour in neighbours) / len(
                 neighbours
             )
             if self._skills[dancer] < average:
@@ -46,13 +50,13 @@ class Dancers:
         return len(eliminate) > 0
 
     def _eliminate_dancer(self, dancer: Position):
-        neighbours = self._neighbours[dancer]
-        for d1 in neighbours.keys():
+        neighbours = {d: n for d, n in self.neighbours(dancer)}
+        for d1 in neighbours:
             d2 = (d1[0] * -1, d1[1] * -1)
             if d2 in neighbours:
                 self._neighbours[neighbours[d1]][d2] = neighbours[d2]
             else:
-                del self._neighbours[neighbours[d1]][d2]
+                self._neighbours[neighbours[d1]][d2] = None
         self.interest -= self._skills[dancer]
         del self._neighbours[dancer]
         del self._skills[dancer]
