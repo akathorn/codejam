@@ -88,7 +88,7 @@ def writesolution(
         ...
     """
     if isinstance(result, list):
-        if isinstance(result[0], list):
+        if isinstance(result[0], list) or isinstance(result[0], tuple):
             out_string = str(len(result)) if print_length else ""
             for row in result:
                 out_values = map(str, row)
