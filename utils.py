@@ -47,7 +47,7 @@ def init(name: str):
 
 def run(name: str):
     print(f"Running samples for {name}")
-    os.system(f"cat {name}.sample | /usr/bin/python3.7 {name}.py")
+    os.system(f"cat {name}.sample | /usr/bin/python3.7 {name}.py --log")
 
 
 if __name__ == "__main__":

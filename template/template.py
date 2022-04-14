@@ -2,6 +2,14 @@ import sys
 from typing import Any, Callable, List, TypeVar, Union
 
 
+if not "--log" in sys.argv:
+
+    def fake_print(*args, **kwargs):
+        return None
+
+    print = fake_print
+
+
 def solve(_) -> int:
     ...
     return 0
