@@ -1,5 +1,8 @@
+import functools
+import math
+import operator
 import sys
-from typing import Any, Callable, List, TypeVar, Union, Generator
+from typing import Any, Callable, List, Optional, TypeVar, Union, Generator
 
 
 # Sieve of Eratosthenes
@@ -9,6 +12,14 @@ from typing import Any, Callable, List, TypeVar, Union, Generator
 P: List[int] = []
 q: int = 2
 D = {}
+
+
+if not "--log" in sys.argv:
+
+    def fake_print(*args, **kwargs):
+        return None
+
+    print = fake_print
 
 
 def gen_primes():
@@ -44,56 +55,39 @@ def gen_primes():
         q += 1
 
 
-def process_cipher_left(cipher: List[int], p: int) -> List[int]:
-    if not cipher:
-        return []
-    q = int(cipher[-1] / p)
-    return process_cipher_left(cipher[:-1], q) + [q]
-
-
-def process_cipher_right(cipher: List[int], p: int) -> List[int]:
-    if not cipher:
-        return []
-    q = int(cipher[0] / p)
-    return [q] + process_cipher_right(cipher[1:], q)
+def complete_text(p: int, i: int, cipher: List[int]) -> List[int]:
+    text: List[int] = [0] * (len(cipher) + 1)
+    text[i] = p
+    # left to right
+    for j in range(i + 1, len(cipher) + 1):
+        q = int(cipher[j - 1] / text[j - 1])
+        text[j] = q
+    # right to left
+    for j in reversed(range(0, i)):
+        q = int(cipher[j] / text[j + 1])
+        text[j] = q
+    return text
 
 
 def solve(N: int, cipher: List[int]) -> str:
-    found = False
-    for p in gen_primes():
-        for i, n in enumerate(cipher):
-            if n % p == 0:
-                q = int(n / p)
-                if i == 0:
-                    if cipher[1] % p != 0:
-                        p, q = q, p
-                elif i == len(cipher) - 1:
-                    if cipher[-2] % q != 0:
-                        p, q = q, p
-                elif cipher[i - 1] % q != 0 or cipher[i + 1] % p != 0:
-                    p, q = q, p
-                if i > 0:
-                    assert cipher[i - 1] % q == 0
-                if i < len(cipher) - 1:
-                    assert cipher[i + 1] % p == 0
-                left = process_cipher_left(cipher[:i], q)
-                right = process_cipher_right(cipher[i + 1 :], p)
-                if any(prime % 2 == 0 for prime in left + right):
-                    p, q = q, p
-                    left = process_cipher_left(cipher[:i], q)
-                    right = process_cipher_right(cipher[i + 1 :], p)
+    # product: int = functools.reduce(operator.mul, cipher)
 
-                found = True
-                break
-        if found:
-            break
+    gen = gen_primes()
+    p = next(gen)
+    while not any(c % p == 0 for c in cipher):
+        p = next(gen)
+    print("prime found")
 
-    primes = left + [q, p] + right  # type: ignore
-    to_char = {p: chr(n) for p, n in zip(sorted(set(primes)), range(65, 65 + 26))}
-    # if len(set(primes)) != 26:
-    #     raise Exception
+    i = [c % p == 0 for c in cipher].index(True)
+    try:
+        text = complete_text(int(cipher[i] / p), i, cipher)
+    except ZeroDivisionError:
+        text = complete_text(p, i, cipher)
+    if i == 0 and any(n - int(n) != 0 for n in text) or len(set(text)) != 26:
+        text = complete_text(p, i, cipher)
 
-    return "".join([to_char[p] for p in primes])
+    to_char = {p: chr(n) for p, n in zip(sorted(set(text)), range(65, 65 + 26))}
+    return "".join([to_char[p] for p in text])
 
 
 def solve_case(case: int):
@@ -136,6 +130,11 @@ def Input() -> str:
 def Output(s: str):
     sys.stdout.write(s + "\n")
     sys.stdout.flush()
+
+
+def Log(s: str):
+    sys.stderr.write(s + "\n")
+    sys.stderr.flush()
 
 
 def Finalize():

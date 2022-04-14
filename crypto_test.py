@@ -87,3 +87,5 @@ def test_random():
             assert crypto.solve(10000, cipher) == text_raw
         except ZeroDivisionError:
             crypto.solve(10000, cipher)
+        except KeyError:
+            crypto.solve(10000, cipher)
