@@ -131,3 +131,4 @@ dmypy.json
 # My stuff
 __pycache__
 .pytest_cache
+prof

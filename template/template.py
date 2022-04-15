@@ -78,16 +78,16 @@ def writesolution(
         Case #{case}: IMPOSSIBLE
     - Single value:
         Case #{case}: {str(result)}
-    - List:
+    - List/tuple:
         Case #{case}: {str(result[0]), str(result[1]), str(result[2]), ...}
-    - List of lists:
+    - List/tuple of lists/tuples:
         Case #{case}: {#rows if print_length == True}
         {str(result[0][0]), str(result[0][1]), ...}
         {str(result[1][0]), str(result[1][1]), ...}
         {str(result[2][0]), str(result[2][1]), ...}
         ...
     """
-    if isinstance(result, list):
+    if isinstance(result, list) or isinstance(result, tuple):
         if isinstance(result[0], list) or isinstance(result[0], tuple):
             out_string = str(len(result)) if print_length else ""
             for row in result:

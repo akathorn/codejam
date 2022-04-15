@@ -34,3 +34,7 @@ def test_in_out(mocker: MockerFixture):
     for call, out in zip(mock_write.mock_calls, out_lines):
         assert call[1][0].strip() == out
     assert len(mock_write.mock_calls) == len(out_lines)
+
+
+def test_profiling():
+    ...

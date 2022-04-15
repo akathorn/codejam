@@ -1,5 +1,6 @@
 #!/usr/bin/python3.7
 
+import pstats
 import sys
 import shutil
 import os
@@ -50,8 +51,27 @@ def run(name: str):
     os.system(f"cat {name}.sample | /usr/bin/python3.7 {name}.py --log")
 
 
+def test(name: str):
+    os.system(f'python3.7 -m pytest {name}_test.py -k "not test_profiling"')
+
+
+def profile(name: str):
+    os.system(f"python3.7 -m pytest --profile {name}_test.py -k test_profiling")
+
+    stats = pstats.Stats("prof/combined.prof")
+    stats.sort_stats("cumulative")
+    stats.print_stats(0.2, "^((?!pytest|pluggy).)*$")
+
+    if len(sys.argv) > 3:
+        stats.print_callees(sys.argv[3])
+
+
 if __name__ == "__main__":
     if sys.argv[1] == "init":
         init(sys.argv[2])
     elif sys.argv[1] == "run":
         run(sys.argv[2])
+    elif sys.argv[1] == "test":
+        test(sys.argv[2])
+    elif sys.argv[1] == "profile":
+        profile(sys.argv[2])
