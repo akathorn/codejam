@@ -66,6 +66,13 @@ def profile(name: str):
         stats.print_callees(sys.argv[3])
 
 
+def profile_svg(name: str):
+    profile(name)
+    os.system(
+        f"gprof2dot -f pstats prof/combined.prof | dot -Tsvg -o prof/combined.svg"
+    )
+
+
 if __name__ == "__main__":
     if sys.argv[1] == "init":
         init(sys.argv[2])
@@ -75,3 +82,5 @@ if __name__ == "__main__":
         test(sys.argv[2])
     elif sys.argv[1] == "profile":
         profile(sys.argv[2])
+    elif sys.argv[1] == "profile_svg":
+        profile_svg(sys.argv[2])
