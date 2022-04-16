@@ -2,14 +2,6 @@ import sys
 from typing import Any, Callable, List, TypeVar, Union
 
 
-if not "--log" in sys.argv:
-
-    def fake_print(*args, **kwargs):
-        return None
-
-    print = fake_print
-
-
 def solve(_) -> int:
     ...
     return 0
@@ -49,6 +41,12 @@ def Input() -> str:
 def Output(s: str):
     sys.stdout.write(s + "\n")
     sys.stdout.flush()
+
+
+def Log(*args, **kwargs):
+    if "--log" in sys.argv:
+        kwargs["file"] = sys.stderr
+        print(*args, **kwargs)
 
 
 def Finalize():

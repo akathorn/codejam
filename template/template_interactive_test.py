@@ -1,7 +1,7 @@
 import queue
 import threading
-import passages
-import passages_judge
+import template
+import template_judge
 from pytest_mock import mocker, MockerFixture  # type: ignore
 
 
@@ -25,13 +25,13 @@ def test_threads(mocker: MockerFixture):
     sol_judge_queue = queue.Queue()
     judge_sol_queue = queue.Queue()
 
-    sol_read = mocker.patch("passages.Input", wraps=Input(judge_sol_queue))
-    sol_write = mocker.patch("passages.Output", wraps=Output(sol_judge_queue))
-    sol_read = mocker.patch("passages.Finalize")
-    judge_read = mocker.patch("passages_judge.Input", wraps=Input(sol_judge_queue))
-    judge_write = mocker.patch("passages_judge.Output", wraps=Output(judge_sol_queue))
+    sol_read = mocker.patch("template.Input", wraps=Input(judge_sol_queue))
+    sol_write = mocker.patch("template.Output", wraps=Output(sol_judge_queue))
+    sol_read = mocker.patch("template.Finalize")
+    judge_read = mocker.patch("template_judge.Input", wraps=Input(sol_judge_queue))
+    judge_write = mocker.patch("template_judge.Output", wraps=Output(judge_sol_queue))
 
-    passages_judge.NUM_CASES = 2
+    # draupnir_judge.NUM_CASES = 2
 
     # judge_exceptions = []
 
@@ -40,10 +40,10 @@ def test_threads(mocker: MockerFixture):
 
     # threading.excepthook = excepthook
 
-    thread = threading.Thread(target=passages_judge.RunCases)
+    thread = threading.Thread(target=template_judge.RunCases)
     thread.start()
 
-    passages.main()
+    template.main()
     done = True
     thread.join()
     # assert not judge_exceptions
