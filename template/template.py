@@ -38,8 +38,8 @@ def Input() -> str:
     return sys.stdin.readline().strip()
 
 
-def Output(s: str):
-    sys.stdout.write(s + "\n")
+def Output(s: Any):
+    sys.stdout.write(str(s) + "\n")
     sys.stdout.flush()
 
 
@@ -67,7 +67,7 @@ def readlines(rows: int, typ: Callable[[str], T] = str) -> List[List[T]]:
 
 
 def writesolution(
-    case: int, result: Union[Any, List[Any], None], print_length=False
+    case: int, result: Union[Any, List[Any], None], print_length: bool = False
 ) -> str:
     """Prints the solution for one case.
 

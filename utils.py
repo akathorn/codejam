@@ -54,6 +54,9 @@ def init(name: str, interactive: bool):
     print(f"Template for {name} initialized")
     if interactive:
         print(f"Download testing tool and rename to {name}_judge.py")
+        print(
+            f"-If the Input/Output functions of the judge are nested, bring them to global scope"
+        )
 
 
 def run(name: str, interactive: bool):
