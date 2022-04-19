@@ -11,7 +11,7 @@ from pytest_mock import mocker, MockerFixture  # type: ignore
 
 class MockJudge:
     def __init__(self, case: Any) -> None:
-        self.out: List[str] = []
+        self.out: List[str] = []  # Put initial messages here
         ...
 
     def input(self, msg: Any):
@@ -28,14 +28,6 @@ class MockJudge:
         return self.out.pop(0)
 
 
-def test_stops_on_error(mocker: MockerFixture):
-    read: mock.MagicMock = mocker.patch("template.Input")
-    read.side_effect = -1
-
-    with pytest.raises(template.EndInteractive):
-        template.solve_case(...)
-
-
 def test_mock(mocker: MockerFixture):
     case: Any = ...
     judge = MockJudge(case)
@@ -50,6 +42,14 @@ def test_mock(mocker: MockerFixture):
 
     calls = ["first call", "second call", ...]
     write.assert_has_calls([mock.call(c) for c in calls], any_order=False)
+
+
+def test_wrong_answer(mocker: MockerFixture):
+    read: mock.MagicMock = mocker.patch("sys.stdin.readline")
+    read.side_effect = -1
+
+    with pytest.raises(template.EndInteractive):
+        template.solve_case(...)
 
 
 def test_threads(mocker: MockerFixture):

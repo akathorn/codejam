@@ -43,7 +43,7 @@ def Output(s: Any):
     sys.stdout.flush()
 
 
-def Log(*args, **kwargs):
+def Log(*args: Any, **kwargs: Any):
     if "--log" in sys.argv:
         kwargs["file"] = sys.stderr
         print(*args, **kwargs)
@@ -103,8 +103,8 @@ def writesolution(
 
 def main():
     try:
-        T = read(int)
-        for case in range(1, T + 1):
+        tests = read(int)
+        for case in range(1, tests + 1):
             solve_case(case)
     except EndInteractive:
         pass
