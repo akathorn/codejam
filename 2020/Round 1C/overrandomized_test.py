@@ -15,9 +15,6 @@ from pytest_mock import mocker, MockerFixture  # type: ignore
 # Case #3: 0
 # """)
 
-with open("overrandomized.sample", "r") as f:
-    in_str = ("\n" + f.read())
-
 out_str = ("""
 Case #1: TPFOXLUSHB
 """)
@@ -25,6 +22,9 @@ Case #1: TPFOXLUSHB
 
 
 def test_in_out(mocker: MockerFixture):
+    with open("overrandomized.sample", "r") as f:
+        in_str = "\n" + f.read()
+
     mock_read = mocker.patch("overrandomized.Input")
     mock_write = mocker.patch("overrandomized.Output")
     _ = mocker.patch("overrandomized.Finalize")

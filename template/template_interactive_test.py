@@ -46,7 +46,7 @@ def test_mock(mocker: MockerFixture):
 
 def test_wrong_answer(mocker: MockerFixture):
     read: mock.MagicMock = mocker.patch("sys.stdin.readline")
-    read.side_effect = -1
+    read.side_effect = [-1]
 
     with pytest.raises(template.EndInteractive):
         template.solve_case(...)
