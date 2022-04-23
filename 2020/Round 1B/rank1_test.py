@@ -1,4 +1,4 @@
-import rank
+import rank1 as rank
 from pytest_mock import mocker, MockerFixture  # type: ignore
 
 # fmt: off

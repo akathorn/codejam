@@ -85,7 +85,7 @@ def profile(name: str, interactive: bool):
 
     stats = pstats.Stats("prof/combined.prof")
     stats.sort_stats("cumulative")
-    stats.print_stats(0.2, "^((?!pytest|pluggy).)*$")
+    stats.print_stats(0.1, "^((?!pytest|pluggy|unittest).)*$")
 
     if len(sys.argv) > 3:
         stats.print_callees(sys.argv[3])

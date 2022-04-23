@@ -1,19 +1,60 @@
+import itertools
 import sys
-from typing import Any, Callable, List, TypeVar, Union, Tuple, Optional
+from typing import Any, Callable, Dict, List, Set, TypeVar, Union, Tuple, Optional
 
 
-def solve(_) -> int:
-    ...
-    return 0
+def init_letters(queries: List[Tuple[int, str]]) -> Dict[str, int]:
+    letters = set()
+    for _, r in queries:
+        letters.update(set(r))
+    letters = list(letters)
+    letters.sort()
+    letters = {l: i for i, l in enumerate(letters)}
+    return letters
+
+
+def solve(U: int, queries: List[Tuple[int, str]]) -> str:
+    letters = init_letters(queries)
+
+    skip: Tuple[int, int] = (-1, -1)
+    mapping = [0] * 10
+    for mapping in itertools.permutations(range(10)):
+        if mapping[skip[0]] == skip[1]:
+            continue
+
+        found = True
+        for m, r in queries:
+            n = 0
+            i = 0
+            for l in reversed(r):
+                n += 10 ** i * mapping[letters[l]]
+                i += 1
+            if n > m or n == 0:
+                found = False
+                if m >= 10 ** (i - 1):
+                    skip = (mapping.index(letters[l]), mapping[letters[l]])
+                break
+        if found:
+            break
+
+    if not found:
+        raise Exception()
+
+    result = [""] * 10
+    for k, v in letters.items():
+        result[mapping[v]] = k
+
+    return "".join(result)
 
 
 def solve_case(case: int):
     # Read data
-    ...
+    U = read(int)
+    queries = [(int(q), r) for q, r in readlines(10000)]
 
     # Solve
     try:
-        result = solve(...)
+        result = solve(U, queries)
     except Impossible:
         result = None
 

@@ -2,18 +2,67 @@ import sys
 from typing import Any, Callable, List, TypeVar, Union, Tuple, Optional
 
 
-def solve(_) -> int:
-    ...
-    return 0
+# def solve(X: int, Y: int, M: str) -> Optional[int]:
+#     if len(set(M)) > 2:
+#         return None
+
+#     if Y < 0:
+#         Y *= -1
+#         d = -1
+#     else:
+#         d = 1
+#     route = [d if m == "N" else -d for m in reversed(M)]
+
+#     steps = 0
+#     X = abs(X)
+#     x = 0
+#     while x != X:
+#         if not route:
+#             return None
+#         Y += route.pop()
+#         x += 1
+#         steps += 1
+
+#     y = 0
+#     while y != Y:
+#         if not route:
+#             return None
+#         steps += 1
+#         Y += route.pop()
+#         if y < Y:
+#             y += 1
+
+#     return steps
+
+
+def solve(X: int, Y: int, M: str) -> Optional[int]:
+    pos = [X, Y]
+    minute = 0
+    for step in M:
+        minute += 1
+        if step == "N":
+            pos[1] += 1
+        if step == "S":
+            pos[1] -= 1
+        if step == "E":
+            pos[0] += 1
+        if step == "W":
+            pos[0] -= 1
+        d = abs(pos[0]) + abs(pos[1])
+        if d <= minute:
+            return minute
+    return None
 
 
 def solve_case(case: int):
     # Read data
-    ...
+    X, Y, M = readmany(str)
+    X = int(X)
+    Y = int(Y)
 
     # Solve
     try:
-        result = solve(...)
+        result = solve(X, Y, M)
     except Impossible:
         result = None
 
