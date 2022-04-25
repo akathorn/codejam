@@ -14,7 +14,11 @@ def init(name: str, interactive: bool):
         raise FileExistsError("The module has been initialized already!")
 
     # Copy template code
-    shutil.copy("./template/template.py", f"./{name}.py")
+    with open("./template/template.py", "r") as template:
+        with open(f"./{name}.py", "w") as target:
+            top_comment = input("Year and round? ")
+            target.write(f"# {top_comment} - {name}\n")
+            target.writelines(template.readlines())
 
     if not interactive:
         # Create sample file

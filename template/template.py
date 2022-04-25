@@ -1,5 +1,5 @@
 import sys
-from typing import Any, Callable, List, TypeVar, Union, Tuple, Optional
+from typing import Any, Callable, List, Sequence, TypeVar, Union, Tuple, Optional
 
 
 def solve(_) -> int:
@@ -18,7 +18,7 @@ def solve_case(case: int):
         result = None
 
     # Write solution
-    Output(writesolution(case, result))
+    Print(result, case=case, print_length=False)
 
 
 ############################ Template code ###############################
@@ -35,7 +35,8 @@ class Impossible(Exception):
 
 
 def Input() -> str:
-    return sys.stdin.readline().strip()
+    line = sys.stdin.readline().strip()
+    return line
 
 
 def Output(s: Any):
@@ -49,25 +50,8 @@ def Log(*args: Any, **kwargs: Any):
         print(*args, **kwargs)
 
 
-def Finalize():
-    sys.stdout.close()
-    sys.stderr.close()
-
-
-def read(typ: Callable[[str], T] = str) -> T:
-    return typ(Input())
-
-
-def readmany(typ: Callable[[str], T] = str) -> List[T]:
-    return [typ(s) for s in Input().split()]
-
-
-def readlines(rows: int, typ: Callable[[str], T] = str) -> List[List[T]]:
-    return [readmany(typ) for _ in range(rows)]
-
-
-def writesolution(
-    case: int, result: Union[Any, List[Any], None], print_length: bool = False
+def format_output(
+    result: Union[Any, Sequence[Any], None], print_length: bool = False
 ) -> str:
     """Prints the solution for one case.
 
@@ -85,12 +69,11 @@ def writesolution(
         {str(result[2][0]), str(result[2][1]), ...}
         ...
     """
-    if isinstance(result, list) or isinstance(result, tuple):
-        if isinstance(result[0], list) or isinstance(result[0], tuple):
+    if isinstance(result, Sequence) and not isinstance(result, str):
+        if isinstance(result[0], Sequence) and not isinstance(result[0], str):
             out_string = str(len(result)) if print_length else ""
             for row in result:
-                out_values = map(str, row)
-                out_string += "\n" + " ".join(out_values)
+                out_string += "\n" + " ".join(map(str, row))
         else:
             out_string = " ".join(str(value) for value in result)
     elif result is None:
@@ -98,12 +81,40 @@ def writesolution(
     else:
         out_string = str(result)
 
-    return f"Case #{case}: {out_string}"
+    return out_string
+
+
+def Print(
+    out: Union[Any, List[Any], None],
+    case: Optional[int] = None,
+    print_length: bool = False,
+):
+    formatted = format_output(out, print_length)
+    out_string = f"Case #{case}: {formatted}" if case else formatted
+
+    Output(out_string)
+
+
+def Finalize():
+    sys.stdout.close()
+    sys.stderr.close()
+
+
+def Read(typ: Callable[[str], T] = str) -> T:
+    return typ(Input())
+
+
+def Readmany(typ: Callable[[str], T] = str) -> List[T]:
+    return [typ(s) for s in Input().split()]
+
+
+def Readlines(rows: int, typ: Callable[[str], T] = str) -> List[List[T]]:
+    return [Readmany(typ) for _ in range(rows)]
 
 
 def main():
     try:
-        tests = read(int)
+        tests = Read(int)
         for case in range(1, tests + 1):
             solve_case(case)
     except EndInteractive:

@@ -9,6 +9,10 @@ import template_judge
 from pytest_mock import mocker, MockerFixture  # type: ignore
 
 
+# Value used by the judge to indicate a wrong answer/interaction
+WRONG_ANSWER = -1
+
+
 class MockJudge:
     def __init__(self, case: Any) -> None:
         self.out: List[str] = []  # Put initial messages here
@@ -46,53 +50,62 @@ def test_mock(mocker: MockerFixture):
 
 def test_wrong_answer(mocker: MockerFixture):
     read: mock.MagicMock = mocker.patch("sys.stdin.readline")
-    read.side_effect = [-1]
+    read.side_effect = [WRONG_ANSWER]
 
     with pytest.raises(template.EndInteractive):
         template.solve_case(...)
 
 
+class FakeIO:
+    def __init__(self, mocker: MockerFixture, timeout: Optional[int] = 3):
+        ##### SETUP I/O ####
+        self.done: bool = False
+
+        def Input(q: "queue.Queue[str]", timeout: Optional[int]) -> Callable[..., str]:
+            def f() -> str:
+                if self.done:
+                    raise EOFError
+                try:
+                    return q.get(timeout=timeout)
+                except queue.Empty:
+                    raise queue.Empty(f"Communication deadlocked after {timeout}s")
+
+            return f
+
+        def Output(q: "queue.Queue[str]") -> Callable[..., None]:
+            def f(s: Any):
+                return q.put(str(s))
+
+            return f
+
+        self.sol_judge_queue: "queue.Queue[str]" = queue.Queue()
+        self.judge_sol_queue: "queue.Queue[str]" = queue.Queue()
+        self.sol_read = mocker.patch("template.Input", wraps=Input(self.judge_sol_queue, timeout))  # type: ignore
+        self.sol_write = mocker.patch("template.Output", wraps=Output(self.sol_judge_queue))  # type: ignore
+        self.sol_read = mocker.patch("template.Finalize")  # type: ignore
+        self.judge_read = mocker.patch("template_judge.Input", wraps=Input(self.sol_judge_queue, timeout))  # type: ignore
+        self.judge_write = mocker.patch("template_judge.Output", wraps=Output(self.judge_sol_queue))  # type: ignore
+
+
 def test_threads(mocker: MockerFixture):
-    done: bool = False
+    IO = FakeIO(mocker, timeout=3)
 
-    cases: Any = ...
-    initial_input: List[str] = [f"{len(cases)} ..."]
-    ## Set timeout to None to disable it
-    timeout: Optional[int] = 3
-
-    def Input(q: "queue.Queue[str]", timeout: Optional[int]) -> Callable[..., str]:
-        def f() -> str:
-            if done:
-                raise EOFError
-            try:
-                return q.get(timeout=timeout)
-            except queue.Empty:
-                raise queue.Empty(f"Communication deadlocked after {timeout}s")
-
-        return f
-
-    def Output(q: "queue.Queue[str]") -> Callable[..., None]:
-        def f(s: Any):
-            return q.put(str(s))
-
-        return f
-
-    sol_judge_queue: "queue.Queue[str]" = queue.Queue()
-    judge_sol_queue: "queue.Queue[str]" = queue.Queue()
+    # The judge will send these lines before actually starting (usually the number of test cases)
+    initial_input: List[str] = ["# test cases"]
     for line in initial_input:
-        judge_sol_queue.put(line)
+        IO.judge_sol_queue.put(line)
 
-    sol_read = mocker.patch("template.Input", wraps=Input(judge_sol_queue, timeout))  # type: ignore
-    sol_write = mocker.patch("template.Output", wraps=Output(sol_judge_queue))  # type: ignore
-    sol_read = mocker.patch("template.Finalize")  # type: ignore
-    judge_read = mocker.patch("template_judge.Input", wraps=Input(sol_judge_queue, timeout))  # type: ignore
-    judge_write = mocker.patch("template_judge.Output", wraps=Output(judge_sol_queue))  # type: ignore
-
-    thread = threading.Thread(target=template_judge.RunCases)
+    # Start judge
+    args = [...]  # Args for the judge
+    thread = threading.Thread(target=template_judge.RunCases, args=args)
     thread.start()
 
+    # Start solution
     template.main()
-    done = True
+
+    # Wrap up
+    IO.done = True
     thread.join()
 
-    assert judge_write.mock_calls[-1] == mocker.call(1)
+    # Check the last response
+    assert IO.judge_write.mock_calls[-1] != mocker.call(WRONG_ANSWER)
