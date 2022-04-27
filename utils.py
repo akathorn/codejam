@@ -18,7 +18,14 @@ def init(name: str, interactive: bool):
         with open(f"./{name}.py", "w") as target:
             top_comment = input("Year and round? ")
             target.write(f"# {top_comment} - {name}\n")
-            target.writelines(template.readlines())
+            for line in template.readlines():
+                if interactive and line.startswith("WRONG_ANSWER"):
+                    wrong_answer = input(
+                        "What is the 'wrong answer' response from the judge? "
+                    )
+                    target.write(f'WRONG_ANSWER = "{wrong_answer}"\n')
+                else:
+                    target.write(line)
 
     if not interactive:
         # Create sample file
@@ -49,18 +56,19 @@ def init(name: str, interactive: bool):
                         dest.writelines(sample_output)
                     else:
                         dest.write(line.replace("template", name))
-    else:
+    elif interactive:
         with open(f"./template/template_interactive_test.py", "r") as template:
             with open(f"./{name}_test.py", "w") as dest:
                 for line in template.readlines():
                     dest.write(line.replace("template", name))
+        url = input("Testing tool URL (or nothing) ")
+        if url:
+            os.system(f"wget {url} -O {name}_judge.py")
+            print("----")
 
     print(f"Template for {name} initialized")
     if interactive:
-        print(f"Download testing tool and rename to {name}_judge.py")
-        print(
-            f"-If the Input/Output functions of the judge are nested, bring them to global scope"
-        )
+        print(f"NOTE: the judge main code should be inside a main() function")
 
 
 def run(name: str, interactive: bool):

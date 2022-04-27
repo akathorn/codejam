@@ -1,5 +1,6 @@
 import queue
 import random
+import sys
 import threading
 import pytest
 from typing import Any, Callable, List, Optional
@@ -10,7 +11,6 @@ from pytest_mock import mocker, MockerFixture  # type: ignore
 
 
 # Value used by the judge to indicate a wrong answer/interaction
-WRONG_ANSWER = -1
 
 
 class MockJudge:
@@ -50,7 +50,7 @@ def test_mock(mocker: MockerFixture):
 
 def test_wrong_answer(mocker: MockerFixture):
     read: mock.MagicMock = mocker.patch("sys.stdin.readline")
-    read.side_effect = [WRONG_ANSWER]
+    read.side_effect = [template.WRONG_ANSWER]
 
     with pytest.raises(template.EndInteractive):
         template.solve_case(...)
@@ -73,25 +73,48 @@ class FakeIO:
             return f
 
         def Output(q: "queue.Queue[str]") -> Callable[..., None]:
-            def f(s: Any):
+            def f(s: Any, *args, **kwargs):
+                if kwargs.get("file") == sys.stderr:
+                    return
                 return q.put(str(s))
 
             return f
 
         self.sol_judge_queue: "queue.Queue[str]" = queue.Queue()
         self.judge_sol_queue: "queue.Queue[str]" = queue.Queue()
-        self.sol_read = mocker.patch("template.Input", wraps=Input(self.judge_sol_queue, timeout))  # type: ignore
-        self.sol_write = mocker.patch("template.Output", wraps=Output(self.sol_judge_queue))  # type: ignore
-        self.sol_read = mocker.patch("template.Finalize")  # type: ignore
-        self.judge_read = mocker.patch("template_judge.Input", wraps=Input(self.sol_judge_queue, timeout))  # type: ignore
-        self.judge_write = mocker.patch("template_judge.Output", wraps=Output(self.judge_sol_queue))  # type: ignore
+        self.sol_read = mocker.patch("template.sys.stdin.readline", wraps=Input(self.judge_sol_queue, timeout))  # type: ignore
+        self.sol_write = mocker.patch("template.sys.stdout.write", wraps=Output(self.sol_judge_queue))  # type: ignore
+        self.judge_read = mocker.patch("blah2_judge.input", wraps=Input(self.sol_judge_queue, timeout))  # type: ignore
+        self.judge_write = mocker.patch("blah2_judge.print", wraps=Output(self.judge_sol_queue))  # type: ignore
+        mocker.patch("template.Finalize")
 
 
-def test_threads(mocker: MockerFixture):
+def test_threads_main(mocker: MockerFixture):
+    IO = FakeIO(mocker, timeout=3)
+    # Add args for the judge
+    args = [""]
+    mocker.patch.object(template_judge.sys, "argv", args)
+    mocker.patch("template_judge.sys.exit")
+
+    thread = threading.Thread(target=template_judge.main)
+    thread.start()
+
+    # Start solution
+    template.main()
+
+    # Wrap up
+    IO.done = True
+    thread.join()
+
+    # Check the last response
+    assert IO.judge_write.mock_calls[-1] != mocker.call(template.WRONG_ANSWER)
+
+
+def test_threads_runcases(mocker: MockerFixture):
     IO = FakeIO(mocker, timeout=3)
 
     # The judge will send these lines before actually starting (usually the number of test cases)
-    initial_input: List[str] = ["# test cases"]
+    initial_input: List[str] = [...]  # e.g. # test cases
     for line in initial_input:
         IO.judge_sol_queue.put(line)
 
@@ -108,4 +131,4 @@ def test_threads(mocker: MockerFixture):
     thread.join()
 
     # Check the last response
-    assert IO.judge_write.mock_calls[-1] != mocker.call(WRONG_ANSWER)
+    assert IO.judge_write.mock_calls[-1] != mocker.call(template.WRONG_ANSWER)

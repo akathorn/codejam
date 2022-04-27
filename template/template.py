@@ -2,6 +2,10 @@ import sys
 from typing import Any, Callable, List, Sequence, TypeVar, Union, Tuple, Optional
 
 
+# Used for interactive problems
+WRONG_ANSWER = ...
+
+
 def solve(_) -> int:
     ...
     return 0
@@ -36,12 +40,19 @@ class Impossible(Exception):
 
 def Input() -> str:
     line = sys.stdin.readline().strip()
+    if line == WRONG_ANSWER:
+        raise EndInteractive()
     return line
 
 
 def Output(s: Any):
     sys.stdout.write(str(s) + "\n")
     sys.stdout.flush()
+
+
+def Talk(s: Any):
+    Output(s)
+    return Input()
 
 
 def Log(*args: Any, **kwargs: Any):
