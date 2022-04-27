@@ -2,7 +2,6 @@
 
 import pstats
 import sys
-import shutil
 import os
 
 PYTHON_PATH = "/usr/bin/python3.7"

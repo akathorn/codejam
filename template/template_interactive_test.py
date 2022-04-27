@@ -84,8 +84,10 @@ class FakeIO:
         self.judge_sol_queue: "queue.Queue[str]" = queue.Queue()
         self.sol_read = mocker.patch("template.sys.stdin.readline", wraps=Input(self.judge_sol_queue, timeout))  # type: ignore
         self.sol_write = mocker.patch("template.sys.stdout.write", wraps=Output(self.sol_judge_queue))  # type: ignore
-        self.judge_read = mocker.patch("blah2_judge.input", wraps=Input(self.sol_judge_queue, timeout))  # type: ignore
-        self.judge_write = mocker.patch("blah2_judge.print", wraps=Output(self.judge_sol_queue))  # type: ignore
+        self.judge_read = mocker.patch("template_judge.input", wraps=Input(self.sol_judge_queue, timeout))  # type: ignore
+        self.judge_write = mocker.patch("template_judge.print", wraps=Output(self.judge_sol_queue))  # type: ignore
+        self.judge_read = mocker.patch("template_judge.sys.stdin.readline", wraps=Input(self.sol_judge_queue, timeout))  # type: ignore
+        self.judge_write = mocker.patch("template_judge.sys.stdout.write", wraps=Output(self.judge_sol_queue))  # type: ignore
         mocker.patch("template.Finalize")
 
 

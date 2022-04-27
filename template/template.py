@@ -51,7 +51,7 @@ def Output(s: Any):
 
 
 def Talk(s: Any):
-    Output(s)
+    Output(format_output(s))
     return Input()
 
 
@@ -59,6 +59,7 @@ def Log(*args: Any, **kwargs: Any):
     if "--log" in sys.argv:
         kwargs["file"] = sys.stderr
         print(*args, **kwargs)
+        sys.stderr.flush()
 
 
 def format_output(
