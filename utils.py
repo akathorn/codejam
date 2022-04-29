@@ -28,9 +28,8 @@ def init(name: str, interactive: bool):
 
     if not interactive:
         # Create sample file
-        print("Paste sample input")
         sample_input = []
-        line = input()
+        line = input("Paste sample input")
         while line:
             sample_input.append(line + "\n")
             line = input()
@@ -39,12 +38,13 @@ def init(name: str, interactive: bool):
             sample.writelines(sample_input)
 
         # Create test file
-        print("Paste sample output")
         sample_output = []
-        line = input()
+        line = input("Paste sample output")
         while line:
             sample_output.append(line + "\n")
             line = input()
+
+        is_float = input("Treat the solution as a float? [True/False] ")
 
         with open(f"./template/template_test.py", "r") as template:
             with open(f"./{name}_test.py", "w") as dest:
@@ -53,6 +53,8 @@ def init(name: str, interactive: bool):
                         dest.writelines(sample_input)
                     elif line.find("[OUTPUT]") >= 0:
                         dest.writelines(sample_output)
+                    elif line.find("SOLUTION_IS_FLOAT =") >= 0:
+                        dest.write(f"SOLUTION_IS_FLOAT = {is_float}\n")
                     else:
                         dest.write(line.replace("template", name))
     elif interactive:
