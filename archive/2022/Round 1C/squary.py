@@ -1,3 +1,4 @@
+# 2022 1C - squary
 import sys
 from typing import Any, Callable, List, Sequence, TypeVar, Union, Tuple, Optional
 
@@ -8,18 +9,53 @@ WRONG_ANSWER = ...
 sys.setrecursionlimit(10000)
 
 
-def solve(_) -> int:
-    ...
-    return 0
+def solve_formula(E: List[int], K: int) -> Optional[List[int]]:
+    if K > 1:
+        raise Exception()
+
+    if E == [0]:
+        return [1]
+    if sum(E) == 0:
+        return None
+
+    # a = 0
+    # for i in range(len(E)):
+    #     for j in range(i):
+    #         a += E[i] * E[j]
+    # b = sum(E)
+    # if a % b != 0:
+    #     return None
+    # else:
+    #     return [-a // b]
+
+    squares = sum(e ** 2 for e in E)
+    a = squares - sum(E) ** 2
+    b = 2 * sum(E)
+    if a % b == 0:
+        return [a // b]
+    return None
+
+
+def solve(E: List[int], K: int) -> Optional[List[int]]:
+    if K > 1:
+        raise Exception()
+
+    x = 0
+    formula = lambda x: (sum(E) + x) ** 2 - (sum(e ** 2 for e in E) + x ** 2)
+
+    derivative = lambda x: formula(x) - formula(x + 1)
+
+    pass
 
 
 def solve_case(case: int):
     # Read data
-    ...
+    N, K = Readmany(int)
+    E = Readmany(int)
 
     # Solve
     try:
-        result = solve(...)
+        result = solve(E, K)
     except Impossible:
         result = None
 

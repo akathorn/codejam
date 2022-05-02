@@ -29,7 +29,7 @@ def init(name: str, interactive: bool):
     if not interactive:
         # Create sample file
         sample_input = []
-        line = input("Paste sample input")
+        line = input("Paste sample input\n")
         while line:
             sample_input.append(line + "\n")
             line = input()
@@ -39,7 +39,7 @@ def init(name: str, interactive: bool):
 
         # Create test file
         sample_output = []
-        line = input("Paste sample output")
+        line = input("Paste sample output\n")
         while line:
             sample_output.append(line + "\n")
             line = input()
